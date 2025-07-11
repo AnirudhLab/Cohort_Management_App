@@ -1,11 +1,20 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="GenAI Cohort", layout="centered")
+st.set_page_config(page_title="GenAI Cohort", layout="wide")
 
-# Load participants
-participants_df = pd.read_csv("data/Participants.csv")
+# Load all data
+participants_df = pd.read_csv("data/participants.csv")
+teams_df = pd.read_csv("data/teams.csv")
+tasks_df = pd.read_csv("data/tasks.csv")
+progress_df = pd.read_csv("data/daily_progress.csv")
+evaluations_df = pd.read_csv("data/evaluations.csv")
+
 st.session_state.participants_df = participants_df
+st.session_state.teams_df = teams_df
+st.session_state.tasks_df = tasks_df
+st.session_state.progress_df = progress_df
+st.session_state.evaluations_df = evaluations_df
 
 # Simple auth
 if "logged_in" not in st.session_state:
@@ -17,19 +26,17 @@ email = st.text_input("Email")
 password = st.text_input("Password", type="password")
 
 if st.button("Login"):
-    # Check if user is admin
     if email in st.secrets.ADMIN_EMAILS and password == st.secrets.ADMIN_PASSWORD:
         st.session_state.logged_in = True
         st.session_state.user_role = "admin"
         st.success(f"Logged in as Admin ({email})")
-    
-    # Check if user is participant and approved
+
     elif email in participants_df["Email"].values:
         user_status = participants_df[participants_df["Email"] == email]["Status"].iloc[0]
         if user_status == "Approved":
             st.session_state.logged_in = True
-            st.session_state.user_role = "participant"
             st.session_state.user_email = email
+            st.session_state.user_role = "participant"
             st.success("Logged in as Participant")
         else:
             st.error("Your account is still pending approval.")
@@ -39,16 +46,31 @@ if st.button("Login"):
 if st.session_state.logged_in:
     st.sidebar.title("Navigation")
     if st.session_state.user_role == "admin":
-        page = st.sidebar.selectbox("Go to", ["Signup", "AI Team Matching", "Daily Summary"])
+        page = st.sidebar.selectbox("Go to", [
+            "Signup",
+            "Admin Panel",
+            "Task Tracker",
+            "Daily Progress",
+            "Cohort Overview"
+        ])
     else:
-        page = st.sidebar.selectbox("Go to", ["Daily Summary"])
+        page = st.sidebar.selectbox("Go to", [
+            "Daily Progress",
+            "Cohort Overview"
+        ])
 
     if page == "Signup":
-        from pages import signup as signup_page
-        signup_page.show()
-    elif page == "AI Team Matching":
-        from pages import ai_team_matching as ai_team_page
-        ai_team_page.show()
-    elif page == "Daily Summary":
-        from pages import daily_summary as daily_summary_page
-        daily_summary_page.show()
+        from pages import signup
+        signup.show()
+    elif page == "Admin Panel":
+        from pages import admin_Panel
+        admin_Panel.show()
+    elif page == "Task Tracker":
+        from pages import task_Tracker
+        task_Tracker.show()
+    elif page == "Daily Progress":
+        from pages import daily_progress
+        daily_progress.show()
+    elif page == "Cohort Overview":
+        from pages import cohort_overview
+        cohort_overview.show()
