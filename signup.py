@@ -33,7 +33,7 @@ def get_google_sheet():
         raise e
 
 # Title
-st.title("📝 Sign Up for the GenAI Cohort")
+st.title("📝 AIEagles Sign Up for the GenAI Cohort")
 
 # Form fields
 name = st.text_input("Full Name")
